@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure' version '2.11.2' // https://plugins.gradle.org/plugin/io.qameta.allure
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+ext {
+    allureVersion = '2.22.0'
+    junitVersion = '5.9.2'
+    selenideVersion = '6.12.4'
+}
+
+allure {
+    report { //секция репорта
+        version.set("${allureVersion}") // https://github.com/allure-framework/allure2
+    }
+    adapter { // отвечает за появление папочки build/allure-results
+        aspectjWeaver.set(true) //обработка аннотации @Step
+        frameworks {
+            junit5 { //название фреймворка
+                adapterVersion.set("${allureVersion}") //https://github.com/allure-framework/allure-java
+            }
+        }
+    }
+
+    //для запуска тестов через Gradle -> Tasks -> verification --> test
+    useJUnit5 {
+        version = "${allureVersion}"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation(
+            "org.junit.jupiter:junit-jupiter-api:${junitVersion}",
+            "com.codeborne:selenide:${selenideVersion}",
+            "io.qameta.allure:allure-selenide:${allureVersion}" //https://mvnrepository.com/artifact/io.qameta.allure/allure-selenide
+    )
+
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+}
+
+test {
+    useJUnitPlatform()
+    systemProperties(System.getProperties())
+}
